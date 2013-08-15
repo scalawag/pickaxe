@@ -57,7 +57,7 @@ class XmlPickaxe(val recursive:Boolean = false) extends Pickaxe[NodeSeq](recursi
       case x:Elem if x.child.forall( ! _.isInstanceOf[Elem] ) => single(x,fromString(x.text))
       // For NodeSeqs that contain only text Atoms, same as above, only we're looking at
       // the Nodes in the sequence itself as opposed to the child node.
-      case x if x.forall(_.isInstanceOf[Atom[_]]) => single[NodeSeq,OUT](x,fromString(x.text))
+      case x if x.length > 0 && x.forall(_.isInstanceOf[Atom[_]]) => single[NodeSeq,OUT](x,fromString(x.text))
     }
 }
 

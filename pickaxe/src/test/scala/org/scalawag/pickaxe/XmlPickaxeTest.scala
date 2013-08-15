@@ -225,6 +225,11 @@ class XmlPickaxeTest extends FunSuite with ShouldMatchers {
     required(int(xml \ "cdata" \ "_")) should be (1234)
   }
 
+  test("use case - empty NodeSeq") {
+    import XmlPickaxe._
+    all(int(xml \ "absent")) should be (Nil)
+  }
+
   test("the whole thing fails if one item can't be converted") {
     import XmlPickaxe._
     val ex = intercept[PickaxeConversionException[NodeSeq,Elem]] {
