@@ -6,7 +6,7 @@ import JacocoPlugin._
 object PickaxeBuild extends Build {
   import Dependencies._
 
-  val VERSION = "1.0-SNAPSHOT"
+  val VERSION = "1.1-SNAPSHOT"
 
   val commonSettings =
     Defaults.defaultSettings ++ Seq(
