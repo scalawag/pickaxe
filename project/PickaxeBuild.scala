@@ -2,6 +2,8 @@ import sbt._
 import Keys._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
+import com.typesafe.sbt.osgi.SbtOsgi._
+import OsgiKeys._
 
 object PickaxeBuild extends Build {
   import Dependencies._
@@ -9,7 +11,7 @@ object PickaxeBuild extends Build {
   val VERSION = "1.1-SNAPSHOT"
 
   val commonSettings =
-    Defaults.defaultSettings ++ Seq(
+    Defaults.defaultSettings ++ osgiSettings ++ Seq(
       version := VERSION,
       crossPaths := false,
       scalacOptions ++= Seq("-unchecked","-deprecation","-feature","-language:implicitConversions","-target:jvm-1.6"),
@@ -56,17 +58,25 @@ object PickaxeBuild extends Build {
         </developers>
   ) ++ jacoco.settings ++ Defaults.itSettings
 
-  val pickaxe = Project("pickaxe",file("pickaxe"),
-                        settings = commonSettings ++ Seq(
-                          libraryDependencies ++= Seq(reflect,timberApi,timber)
-                        )
-                       )
+  val pickaxe =
+    Project("pickaxe",file("pickaxe"),
+      settings = commonSettings ++ Seq(
+        libraryDependencies ++= Seq(reflect,timberApi,timber),
+        exportPackage ++= Seq(
+          "org.scalawag.pickaxe"
+        )
+      )
+     )
 
-  val pickaxeLiftJson = Project("pickaxe-lift-json",file("pickaxe-lift-json"),
-                                settings = commonSettings ++ Seq(
-                                  libraryDependencies ++= Seq(liftJson,timber)
-                                )
-                               ) dependsOn (pickaxe)
+  val pickaxeLiftJson =
+    Project("pickaxe-lift-json",file("pickaxe-lift-json"),
+      settings = commonSettings ++ Seq(
+        libraryDependencies ++= Seq(liftJson,timber),
+        exportPackage ++= Seq(
+          "org.scalawag.pickaxe.json"
+        )
+      )
+     ) dependsOn (pickaxe)
 
   val aggregator = Project("aggregate",file("."),
                            settings = commonSettings ++ Seq(
