@@ -1,11 +1,11 @@
-package org.scalawag.pickaxe
+package org.scalawag.pickaxe.json
 
 import scala.reflect.runtime.universe._
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import net.liftweb.json.JsonParser
 import net.liftweb.json.JsonAST._
-import scala.util.{Failure,Try,Success}
+import org.scalawag.pickaxe.{PickaxeConversionException, PickaxeConversion}
 
 class LiftJsonPickaxeTest extends FunSuite with ShouldMatchers {
 

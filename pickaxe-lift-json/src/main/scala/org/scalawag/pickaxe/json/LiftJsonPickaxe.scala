@@ -1,9 +1,10 @@
-package org.scalawag.pickaxe
+package org.scalawag.pickaxe.json
 
 import scala.reflect.runtime.universe._
 import net.liftweb.json.JsonAST._
 import scala.math.BigInt
-import PickaxeConversion._
+import org.scalawag.pickaxe.Pickaxe
+import org.scalawag.pickaxe.PickaxeConversion._
 
 object LiftJsonPickaxe extends LiftJsonPickaxe(true,false)
 
