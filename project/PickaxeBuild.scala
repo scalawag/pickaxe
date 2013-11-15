@@ -8,7 +8,7 @@ import OsgiKeys._
 object PickaxeBuild extends Build {
   import Dependencies._
 
-  val VERSION = "1.1-SNAPSHOT"
+  val VERSION = "1.2-SNAPSHOT"
 
   val commonSettings =
     Defaults.defaultSettings ++ osgiSettings ++ Seq(
