@@ -1,5 +1,5 @@
 import java.io.FileWriter
-import org.scalawag.timber.api.impl.TimberConfiguration
+import org.scalawag.timber.backend.TimberConfiguration
 import org.scalawag.timber.impl.formatter.DefaultEntryFormatter
 import org.scalawag.timber.impl.receiver.{WriterReceiver,AutoFlush}
 

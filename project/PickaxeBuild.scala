@@ -64,6 +64,9 @@ object PickaxeBuild extends Build {
         libraryDependencies ++= Seq(reflect,timberApi,timber),
         exportPackage ++= Seq(
           "org.scalawag.pickaxe"
+        ),
+        importPackage ++= Seq(
+          "org.scalawag.timber.backend;version=0.4"
         )
       )
      )
@@ -84,11 +87,11 @@ object PickaxeBuild extends Build {
                            )) aggregate (pickaxe,pickaxeLiftJson)
 
   object Dependencies {
-    val timberApi = "org.scalawag.timber" % "timber-api" % "0.3-SNAPSHOT" changing
+    val timberApi = "org.scalawag.timber" % "timber-api" % "0.4-SNAPSHOT" changing
     val reflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
     val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC1"
 
-    val timber = "org.scalawag.timber" % "timber" % "0.3-SNAPSHOT" % "test" changing
+    val timber = "org.scalawag.timber" % "timber" % "0.4-SNAPSHOT" % "test" changing
     val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
     val mockito = "org.mockito" % "mockito-all" % "1.9.0" % "test"
   }
