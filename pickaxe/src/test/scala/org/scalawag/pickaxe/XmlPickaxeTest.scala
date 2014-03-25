@@ -26,6 +26,12 @@ class XmlPickaxeTest extends FunSuite with ShouldMatchers {
       <cdata>
         <one>1<![CDATA[23]]>4</one>
       </cdata>
+      <multi-level-attributes>
+        <e id="id1">
+          <e id="id3"/>
+        </e>
+        <e id="id2"/>
+      </multi-level-attributes>
     </root>
 
   test("convert - String - success") {
@@ -255,6 +261,19 @@ class XmlPickaxeTest extends FunSuite with ShouldMatchers {
     all(int(xml \ "numbers")) should be (Seq(1,2))
   }
 
+  test("gathering attributes works") {
+    val pickaxe = new XmlPickaxe(true)
+    import pickaxe._
+
+    all(string(xml \ "multi-level-attributes" \ "e" \\ "@id")) should be (Seq("id1","id3","id2"))
+  }
+
+  test("gathering attributes from a single level works") {
+    val pickaxe = new XmlPickaxe(true)
+    import pickaxe._
+
+    all(string(xml \ "multi-level-attributes" \ "e" \@ "id")) should be (Seq("id1","id2"))
+  }
 }
 
 /* pickaxe -- Copyright 2013 Justin Patterson -- All Rights Reserved */

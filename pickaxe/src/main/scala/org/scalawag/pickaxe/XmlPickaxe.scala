@@ -55,10 +55,14 @@ class XmlPickaxe(val recursive:Boolean = false) extends Pickaxe[NodeSeq](recursi
       // the text from all the children and try to convert it to the correct type using the fromString
       // function that was passed in.
       case x:Elem if x.child.forall( ! _.isInstanceOf[Elem] ) => single(x,fromString(x.text))
-      // For NodeSeqs that contain only text Atoms, same as above, only we're looking at
-      // the Nodes in the sequence itself as opposed to the child node.
-      case x if x.length > 0 && x.forall(_.isInstanceOf[Atom[_]]) => single[NodeSeq,OUT](x,fromString(x.text))
+      // For NodeSeqs that contain only text Atoms, act similar to the above, only we're look at
+      // the Nodes in the sequence itself as opposed to the child node (and don't collapse).
+      case x if x.length > 0 && x.forall(_.isInstanceOf[Atom[_]]) => sequence[NodeSeq,OUT](x,x.map(_.text).map(fromString))
     }
+
+  implicit class AttributeExtractor(ns:NodeSeq) {
+    def \@(s:String) = ns.flatMap( _ \ s"@$s" )
+  }
 }
 
 /* pickaxe -- Copyright 2013 Justin Patterson -- All Rights Reserved */
