@@ -22,7 +22,7 @@ object PickaxeBuild extends Build {
       // See: http://docs.scala-lang.org/overviews/reflection/thread-safety.html
       parallelExecution in Test := false,
       parallelExecution in jacoco.Config := false,
-      libraryDependencies ++= Seq(scalatest,mockito),
+      libraryDependencies ++= Seq(scalatest,mockito,timber),
       organization := "org.scalawag.pickaxe",
       resolvers += "sonatype-oss-snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
       publishMavenStyle := true,
@@ -61,7 +61,7 @@ object PickaxeBuild extends Build {
   val pickaxe =
     Project("pickaxe",file("pickaxe"),
       settings = commonSettings ++ Seq(
-        libraryDependencies ++= Seq(reflect,timberApi,timber),
+        libraryDependencies ++= Seq(reflect,timberApi),
         exportPackage ++= Seq(
           "org.scalawag.pickaxe"
         ),
@@ -71,10 +71,20 @@ object PickaxeBuild extends Build {
       )
      )
 
+  val pickaxeSdom =
+    Project("pickaxe-sdom",file("pickaxe-sdom"),
+      settings = commonSettings ++ Seq(
+        libraryDependencies ++= Seq(sdom),
+        exportPackage ++= Seq(
+          "org.scalawag.pickaxe.json"
+        )
+      )
+     ) dependsOn (pickaxe)
+
   val pickaxeLiftJson =
     Project("pickaxe-lift-json",file("pickaxe-lift-json"),
       settings = commonSettings ++ Seq(
-        libraryDependencies ++= Seq(liftJson,timber),
+        libraryDependencies ++= Seq(liftJson),
         exportPackage ++= Seq(
           "org.scalawag.pickaxe.json"
         )
@@ -84,14 +94,15 @@ object PickaxeBuild extends Build {
   val aggregator = Project("aggregate",file("."),
                            settings = commonSettings ++ Seq(
                              publish := {}
-                           )) aggregate (pickaxe,pickaxeLiftJson)
+                           )) aggregate (pickaxe,pickaxeLiftJson,pickaxeSdom)
 
   object Dependencies {
-    val timberApi = "org.scalawag.timber" % "timber-api" % "0.4-SNAPSHOT" changing
+    val sdom = "org.scalawag.sdom" % "sdom" % "0.1-SNAPSHOT" changing
+    val timberApi = "org.scalawag.timber" % "timber-api" % "0.5-SNAPSHOT" changing
     val reflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
     val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC1"
 
-    val timber = "org.scalawag.timber" % "timber" % "0.4-SNAPSHOT" % "test" changing
+    val timber = "org.scalawag.timber" % "timber" % "0.5-SNAPSHOT" % "test" changing
     val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
     val mockito = "org.mockito" % "mockito-all" % "1.9.0" % "test"
   }
