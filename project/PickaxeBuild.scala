@@ -36,7 +36,7 @@ object PickaxeBuild extends Build {
       },
       pomIncludeRepository := { _ => false },
       pomExtra :=
-        <url>http://scalwag.org/timber</url>
+        <url>http://scalwag.org/pickaxe</url>
         <licenses>
           <license>
             <name>Apache 2</name>
@@ -45,8 +45,8 @@ object PickaxeBuild extends Build {
           </license>
         </licenses>
         <scm>
-          <url>http://github.com/scalawag/timber</url>
-          <connection>scm:git:git://github.com/scalawag/timber.git</connection>
+          <url>http://github.com/scalawag/pickaxe</url>
+          <connection>scm:git:git://github.com/scalawag/pickaxe.git</connection>
         </scm>
         <developers>
           <developer>
