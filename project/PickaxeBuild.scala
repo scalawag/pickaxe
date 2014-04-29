@@ -8,7 +8,7 @@ import OsgiKeys._
 object PickaxeBuild extends Build {
   import Dependencies._
 
-  val VERSION = "1.2-SNAPSHOT"
+  val VERSION = "1.2.0"
 
   val commonSettings =
     Defaults.defaultSettings ++ osgiSettings ++ Seq(
@@ -24,7 +24,7 @@ object PickaxeBuild extends Build {
       parallelExecution in jacoco.Config := false,
       libraryDependencies ++= Seq(scalatest,mockito),
       organization := "org.scalawag.pickaxe",
-      resolvers += "sonatype-oss-snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
+      resolvers += "sonatype-oss-releases" at "http://oss.sonatype.org/content/repositories/releases/",
       publishMavenStyle := true,
       publishArtifact in Test := false,
       publishTo <<= version { (v: String) =>
@@ -87,11 +87,11 @@ object PickaxeBuild extends Build {
                            )) aggregate (pickaxe,pickaxeLiftJson)
 
   object Dependencies {
-    val timberApi = "org.scalawag.timber" % "timber-api" % "0.4-SNAPSHOT" changing
+    val timberApi = "org.scalawag.timber" % "timber-api" % "0.4.0"
     val reflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
     val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC1"
 
-    val timber = "org.scalawag.timber" % "timber" % "0.4-SNAPSHOT" % "test" changing
+    val timber = "org.scalawag.timber" % "timber" % "0.4.0" % "test"
     val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
     val mockito = "org.mockito" % "mockito-all" % "1.9.0" % "test"
   }
