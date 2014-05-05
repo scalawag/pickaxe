@@ -2,12 +2,12 @@ package org.scalawag.pickaxe.sdom
 
 import scala.reflect.runtime.universe._
 import org.scalawag.pickaxe.{PickaxeConversion, Pickaxe}
-import org.jdom2._
+import org.scalawag.sdom._
 import PickaxeConversion._
 
 object SdomPickaxe extends SdomPickaxe(false)
 
-class SdomPickaxe(val recursive:Boolean = false) extends Pickaxe[Iterable[AnyRef]](recursive,false) {
+class SdomPickaxe(val recursive:Boolean = false) extends Pickaxe[Iterable[Node]](recursive,false) {
   private val STRING:Type = typeOf[String]
   private val INT:Type = typeOf[Int]
   private val LONG:Type = typeOf[Long]
@@ -23,43 +23,55 @@ class SdomPickaxe(val recursive:Boolean = false) extends Pickaxe[Iterable[AnyRef
     case (in,FLOAT)   => float(in)
     case (in,DOUBLE)  => double(in)
     case (in,BOOLEAN) => boolean(in)
-    case (in,ELEMENT) => elem(in)
+    case (in,ELEMENT) => element(in)
   }
 
-/* TODO: get support for recursion working here
   override protected def extractRecursive[OUT:TypeTag](extract: => Extractor[OUT]):Extractor[OUT] = {
-    // This is a complex element (contains children which are elements).  Recurse (if allowed) by
-    // converting each of the child elements individually.
-    case ins:Iterable[_] if ins.exists( e => e.isInstanceOf[Element] ) =>
-      val es = ins.filter(_.isInstanceOf[Element]).map(_.asInstanceOf[Element])
-      val convs = es map { e =>
-        extract(Iterable(e))
-      }
-      PickaxeConversion[Iterable[AnyRef],OUT](ins,Right(convs.toSeq))
-  }
-*/
-
-  def string(in:Iterable[AnyRef]) = textContent(in)(identity)
-  def int(in:Iterable[AnyRef]) = textContent(in)(_.trim.toInt)
-  def long(in:Iterable[AnyRef]) = textContent(in)(_.trim.toLong)
-  def float(in:Iterable[AnyRef]) = textContent(in)(_.trim.toFloat)
-  def double(in:Iterable[AnyRef]) = textContent(in)(_.trim.toDouble)
-  def boolean(in:Iterable[AnyRef]) = textContent(in)(_.trim.toBoolean)
-
-  def elem(in:Iterable[AnyRef]) = process(in) {
-    case seq if seq.forall(_.isInstanceOf[Element]) =>
-      sequence[Iterable[AnyRef],Element](seq,seq.toSeq.map(_.asInstanceOf[Element]))
+    case x:Iterable[Node] if containsOnlyWhitespaceAndElems(x) =>
+      PickaxeConversion[Iterable[Node],OUT](x,Right(elementsOnly(x).map( e => extract(e.children) ).toSeq))
   }
 
-  private[this] def textContent[OUT:TypeTag](in:Iterable[AnyRef])(fromString:String => OUT):PickaxeConversion[Iterable[AnyRef],OUT] =
+  def string(in:Iterable[Node]) = textContent(in)(identity)
+  def int(in:Iterable[Node]) = textContent(in)(_.trim.toInt)
+  def long(in:Iterable[Node]) = textContent(in)(_.trim.toLong)
+  def float(in:Iterable[Node]) = textContent(in)(_.trim.toFloat)
+  def double(in:Iterable[Node]) = textContent(in)(_.trim.toDouble)
+  def boolean(in:Iterable[Node]) = textContent(in)(_.trim.toBoolean)
+
+  def element(in:Iterable[Node]) = process(in) {
+    case x:Iterable[Node] if containsOnlyWhitespaceAndElems(x) =>
+      sequence[Iterable[Node],Element](x,elementsOnly(x).toSeq)
+  }
+
+  private[this] def textContent[OUT:TypeTag](in:Iterable[Node])(fromString:String => OUT):PickaxeConversion[Iterable[Node],OUT] =
     process(in) {
-      case seq =>
-        sequence[Iterable[AnyRef],OUT](seq,seq.toSeq.map {
-          case e:Element if e.getChildren.isEmpty => fromString(e.getText)
-          case a:Attribute => fromString(a.getValue)
-          case t:Text => fromString(t.getText)
-        })
+      case x:Iterable[Node] if x.forall(_.isInstanceOf[Attribute]) =>
+        sequence[Iterable[Node],OUT](x,x.map(_.asInstanceOf[Attribute].value).map(fromString).toSeq)
+      // For elements that have only text children, we don't consider this a recursion.  Just take
+      // the text from all the children and try to convert it to the correct type using the fromString
+      // function that was passed in.  It may appear in an Iterable if it was the result of a navigation.
+      case x:Iterable[Node] if containsOnlySimpleElements(x) =>
+        sequence[Iterable[Node],OUT](x,elementsOnly(x).map(_.text).map(fromString).toSeq)
     }
+
+  private[this] def removeInsignificants(x:Iterable[Node]) =
+    x filter {
+      case n:Element => true
+      case t:TextLike if ! t.text.trim.isEmpty => true
+      case _ => false
+    }
+
+  private[this] def containsOnlyWhitespaceAndElems(g:Iterable[Node]) =
+    g.forall( n => n.isInstanceOf[TextLike] && n.asInstanceOf[TextLike].text.trim.isEmpty || n.isInstanceOf[Element] )
+
+  private[this] def isSimpleElement(node:Node) =
+    node.isInstanceOf[Element] && node.asInstanceOf[Element].children.forall(! _.isInstanceOf[Element])
+
+  private[this] def containsOnlySimpleElements(nodes:Iterable[Node]) =
+    removeInsignificants(nodes).forall(isSimpleElement)
+
+  private[this] def elementsOnly(nodes:Iterable[Node]):Iterable[Element] =
+    nodes.filter(_.isInstanceOf[Element]).map(_.asInstanceOf[Element])
 }
 
 /* pickaxe -- Copyright 2013 Justin Patterson -- All Rights Reserved */

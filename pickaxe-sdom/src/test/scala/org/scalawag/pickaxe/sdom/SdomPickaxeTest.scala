@@ -2,15 +2,11 @@ package org.scalawag.pickaxe.sdom
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import org.scalawag.sdom.XML
-import org.scalawag.sdom.Implicits._
 import org.scalawag.pickaxe.PickaxeConversionException
-import org.jdom2.Element
-import org.jdom2.output.XMLOutputter
+import org.scalawag.sdom._
+import org.scalawag.pickaxe.PickaxeConversionException
 
 class SdomPickaxeTest extends FunSuite with ShouldMatchers {
-  private[this] val outputter = new XMLOutputter
-  private[this] def stringify(e:Element) = outputter.outputString(e)
 
   private val xml = XML.parse("""
     <root id="1234">
@@ -39,22 +35,22 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
         <e id="id2"/>
       </multi-level-attributes>
     </root>
-  """)
+  """).root
 
   test("convert - String - success") {
     import SdomPickaxe._
-    mine[Seq[String]](xml \ "numbers" \ "_") should be (Seq("1","2"))
+    mine[Seq[String]](xml \ "numbers" \ *) should be (Seq("1","2"))
   }
 
   test("convert - Int - success") {
     import SdomPickaxe._
-    mine[Seq[Int]](xml \ "numbers" \ "_") should be (Seq(1,2))
+    mine[Seq[Int]](xml \ "numbers" \ *) should be (Seq(1,2))
   }
 
   test("convert - Int - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      mine[Seq[Int]](xml \ "booleans" \ "_")
+      mine[Seq[Int]](xml \ "booleans" \ *)
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -62,13 +58,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("convert - Long - success") {
     import SdomPickaxe._
-    mine[Seq[Long]](xml \ "numbers" \ "_") should be (Seq(1L,2L))
+    mine[Seq[Long]](xml \ "numbers" \ *) should be (Seq(1L,2L))
   }
 
   test("convert - Long - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      mine[Seq[Long]](xml \ "booleans" \ "_")
+      mine[Seq[Long]](xml \ "booleans" \ *)
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -76,13 +72,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("convert - Float - success") {
     import SdomPickaxe._
-    mine[Seq[Float]](xml \ "numbers" \ "_") should be (Seq(1f,2f))
+    mine[Seq[Float]](xml \ "numbers" \ *) should be (Seq(1f,2f))
   }
 
   test("convert - Float - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      mine[Seq[Float]](xml \ "booleans" \ "_")
+      mine[Seq[Float]](xml \ "booleans" \ *)
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -90,13 +86,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("convert - Double - success") {
     import SdomPickaxe._
-    mine[Seq[Double]](xml \ "numbers" \ "_") should be (Seq(1.0,2.0))
+    mine[Seq[Double]](xml \ "numbers" \ *) should be (Seq(1.0,2.0))
   }
 
   test("convert - Double - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      mine[Seq[Double]](xml \ "booleans" \ "_")
+      mine[Seq[Double]](xml \ "booleans" \ *)
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -104,13 +100,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("convert - Boolean - success") {
     import SdomPickaxe._
-    mine[Seq[Boolean]](xml \ "booleans" \ "_") should be (Seq(true,false))
+    mine[Seq[Boolean]](xml \ "booleans" \ *) should be (Seq(true,false))
   }
 
   test("convert - Boolean - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      mine[Seq[Boolean]](xml \ "numbers" \ "_")
+      mine[Seq[Boolean]](xml \ "numbers" \ *)
     }
 
     ex.getMessage should include ("IllegalArgumentException")
@@ -118,7 +114,10 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("convert - Element - success") {
     import SdomPickaxe._
-    mine[Seq[Element]](xml \ "numbers" \ "_").map(stringify) should be (Seq("<one>1</one>","<two>2</two>"))
+    mine[Seq[Element]](xml \ "numbers" \ *).map(_.spec) should be (Seq(
+      ElementSpec("one",children = Iterable(TextSpec("1"))),
+      ElementSpec("two",children = Iterable(TextSpec("2")))
+    ))
   }
 
   test("convert - Element - fail") {
@@ -132,18 +131,18 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("direct - String - success") {
     import SdomPickaxe._
-    all(string(xml \ "numbers" \ "_")) should be (Seq("1","2"))
+    all(string(xml \ "numbers" \ *)) should be (Seq("1","2"))
   }
 
   test("direct - Int - success") {
     import SdomPickaxe._
-    all(int(xml \ "numbers" \ "_")) should be (Seq(1,2))
+    all(int(xml \ "numbers" \ *)) should be (Seq(1,2))
   }
 
   test("direct - Int - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      all(int(xml \ "booleans" \ "_"))
+      all(int(xml \ "booleans" \ *))
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -151,13 +150,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("direct - Long - success") {
     import SdomPickaxe._
-    all(long(xml \ "numbers" \ "_")) should be (Seq(1L,2L))
+    all(long(xml \ "numbers" \ *)) should be (Seq(1L,2L))
   }
 
   test("direct - Long - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      all(long(xml \ "booleans" \ "_"))
+      all(long(xml \ "booleans" \ *))
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -165,13 +164,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("direct - Float - success") {
     import SdomPickaxe._
-    all(float(xml \ "numbers" \ "_")) should be (Seq(1f,2f))
+    all(float(xml \ "numbers" \ *)) should be (Seq(1f,2f))
   }
 
   test("direct - Float - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      all(float(xml \ "booleans" \ "_"))
+      all(float(xml \ "booleans" \ *))
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -179,13 +178,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("direct - Double - success") {
     import SdomPickaxe._
-    all(double(xml \ "numbers" \ "_")) should be (Seq(1.0,2.0))
+    all(double(xml \ "numbers" \ *)) should be (Seq(1.0,2.0))
   }
 
   test("direct - Double - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      all(double(xml \ "booleans" \ "_"))
+      all(double(xml \ "booleans" \ *))
     }
 
     ex.getMessage should include ("NumberFormatException")
@@ -193,13 +192,13 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("direct - Boolean - success") {
     import SdomPickaxe._
-    all(boolean(xml \ "booleans" \ "_")) should be (Seq(true,false))
+    all(boolean(xml \ "booleans" \ *)) should be (Seq(true,false))
   }
 
   test("direct - Boolean - fail") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Int]] {
-      all(boolean(xml \ "numbers" \ "_"))
+      all(boolean(xml \ "numbers" \ *))
     }
 
     ex.getMessage should include ("IllegalArgumentException")
@@ -207,14 +206,17 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
 
   test("direct - Element - success") {
     import SdomPickaxe._
-    val c = elem(xml \ "numbers" \ "_")
-    all(c).map(stringify) should be (Seq("<one>1</one>","<two>2</two>"))
+    val c = element(xml \ "numbers" \ *)
+    all(c).map(_.spec) should be (Seq(
+      ElementSpec("one",children = Iterable(TextSpec("1"))),
+      ElementSpec("two",children = Iterable(TextSpec("2")))
+    ))
   }
 
   test("direct - Element - fail") {
     import SdomPickaxe._
     intercept[PickaxeConversionException[Iterable[Element],Element]] {
-      all(elem(xml \@ "id"))
+      all(element(xml \@ "id"))
     }
   }
 
@@ -223,19 +225,19 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
     mine[Int](xml \@ "id") should be (1234)
   }
 
-  test("use case - read specific element content") {
+  test("use case - read specific Element content") {
     import SdomPickaxe._
     mine[Int](xml \ "numbers" \ "one") should be (1)
   }
 
   test("use case - comments are ignored") {
     import SdomPickaxe._
-    all(int(xml \ "comments" \ "_")) should be (Seq(12,2))
+    all(int(xml \ "comments" \ *)) should be (Seq(12,2))
   }
 
   test("use case - cdata is transparent") {
     import SdomPickaxe._
-    required(int(xml \ "cdata" \ "_")) should be (1234)
+    required(int(xml \ "cdata" \ *)) should be (1234)
   }
 
   test("use case - empty Iterable[Element]") {
@@ -244,15 +246,16 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
   }
 
   test("the whole thing fails if one item can't be converted") {
-    import SdomPickaxe._
+    val pickaxe = new SdomPickaxe(true)
+    import pickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Element]] {
-      all(int(xml \ "_" \ "_"))
+      all(int(xml \ * \ *))
     }
 
     ex.getMessage should include ("NumberFormatException")
   }
 
-  ignore("recursion fails if disallowed") {
+  test("recursion fails if disallowed") {
     import SdomPickaxe._
     val ex = intercept[PickaxeConversionException[Iterable[Element],Element]] {
       all(int(xml \ "numbers"))
@@ -261,7 +264,7 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
     ex.getMessage should include ("no conversion")
   }
 
-  ignore("recursion works only if allowed") {
+  test("recursion works only if allowed") {
     val pickaxe = new SdomPickaxe(true)
     import pickaxe._
 
@@ -269,10 +272,17 @@ class SdomPickaxeTest extends FunSuite with ShouldMatchers {
   }
 
   test("gathering attributes works") {
-    val pickaxe = new SdomPickaxe(true)
-    import pickaxe._
+    import SdomPickaxe._
+    val xml = XML.parse("""
+      <multi-level-attributes>
+        <e id="id1">
+          <e id="id3"/>
+        </e>
+        <e id="id2"/>
+      </multi-level-attributes>
+    """)
 
-    all(string(xml \ "multi-level-attributes" \\ "e" \@ "id")) should be (Seq("id1","id3","id2"))
+    all(string(xml \\ "e" \@ "id")) should be (Seq("id1","id3","id2"))
   }
 }
 
