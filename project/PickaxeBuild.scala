@@ -99,11 +99,11 @@ object PickaxeBuild extends Build {
 
   object Dependencies {
     val sdom = "org.scalawag.sdom" % "sdom" % "0.1-SNAPSHOT" changing
-    val timberApi = "org.scalawag.timber" % "timber-api" % "0.5-SNAPSHOT" changing
+    val timberApi = "org.scalawag.timber" % "timber-api" % "0.4.0"
     val reflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
     val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC1"
 
-    val timber = "org.scalawag.timber" % "timber" % "0.5-SNAPSHOT" % "test" changing
+    val timber = "org.scalawag.timber" % "timber" % "0.4.0" % "test"
     val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
     val mockito = "org.mockito" % "mockito-all" % "1.9.0" % "test"
   }
