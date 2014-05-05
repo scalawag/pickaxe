@@ -93,8 +93,9 @@ object PickaxeBuild extends Build {
      ) dependsOn (pickaxe)
 
   val aggregator = Project("aggregate",file("."),
-                           settings = commonSettings ++ Seq(
-                             publish := {}
+                           settings = Defaults.defaultSettings ++ Seq(
+                             publishTo := Some("unused" at "unused"),
+                             packagedArtifacts := Map.empty
                            )) aggregate (pickaxe,pickaxeLiftJson,pickaxeSdom)
 
   object Dependencies {
