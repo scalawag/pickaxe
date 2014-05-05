@@ -4,11 +4,12 @@ import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import com.typesafe.sbt.osgi.SbtOsgi._
 import OsgiKeys._
+import org.scalawag.sbt.gitflow.GitFlow
 
 object PickaxeBuild extends Build {
   import Dependencies._
 
-  val VERSION = "1.2-SNAPSHOT"
+  val VERSION = GitFlow.WorkingDir.version.toString
 
   val commonSettings =
     Defaults.defaultSettings ++ osgiSettings ++ Seq(
