@@ -4,11 +4,12 @@ import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import com.typesafe.sbt.osgi.SbtOsgi._
 import OsgiKeys._
+import org.scalawag.sbt.gitflow.GitFlow
 
 object PickaxeBuild extends Build {
   import Dependencies._
 
-  val VERSION = "1.2.0"
+  val VERSION = GitFlow.WorkingDir.version.toString
 
   val commonSettings =
     Defaults.defaultSettings ++ osgiSettings ++ Seq(
@@ -22,9 +23,9 @@ object PickaxeBuild extends Build {
       // See: http://docs.scala-lang.org/overviews/reflection/thread-safety.html
       parallelExecution in Test := false,
       parallelExecution in jacoco.Config := false,
-      libraryDependencies ++= Seq(scalatest,mockito),
+      libraryDependencies ++= Seq(scalatest,mockito,timber),
       organization := "org.scalawag.pickaxe",
-      resolvers += "sonatype-oss-releases" at "http://oss.sonatype.org/content/repositories/releases/",
+      resolvers += "sonatype-oss-releases" at "https://oss.sonatype.org/content/repositories/releases/",
       publishMavenStyle := true,
       publishArtifact in Test := false,
       publishTo <<= version { (v: String) =>
@@ -61,7 +62,7 @@ object PickaxeBuild extends Build {
   val pickaxe =
     Project("pickaxe",file("pickaxe"),
       settings = commonSettings ++ Seq(
-        libraryDependencies ++= Seq(reflect,timberApi,timber),
+        libraryDependencies ++= Seq(reflect,timberApi),
         exportPackage ++= Seq(
           "org.scalawag.pickaxe"
         ),
@@ -71,10 +72,20 @@ object PickaxeBuild extends Build {
       )
      )
 
+  val pickaxeSdom =
+    Project("pickaxe-sdom",file("pickaxe-sdom"),
+      settings = commonSettings ++ Seq(
+        libraryDependencies ++= Seq(sdom),
+        exportPackage ++= Seq(
+          "org.scalawag.pickaxe.sdom"
+        )
+      )
+     ) dependsOn (pickaxe)
+
   val pickaxeLiftJson =
     Project("pickaxe-lift-json",file("pickaxe-lift-json"),
       settings = commonSettings ++ Seq(
-        libraryDependencies ++= Seq(liftJson,timber),
+        libraryDependencies ++= Seq(liftJson),
         exportPackage ++= Seq(
           "org.scalawag.pickaxe.json"
         )
@@ -82,11 +93,13 @@ object PickaxeBuild extends Build {
      ) dependsOn (pickaxe)
 
   val aggregator = Project("aggregate",file("."),
-                           settings = commonSettings ++ Seq(
-                             publish := {}
-                           )) aggregate (pickaxe,pickaxeLiftJson)
+                           settings = Defaults.defaultSettings ++ Seq(
+                             publishTo := Some("unused" at "unused"),
+                             packagedArtifacts := Map.empty
+                           )) aggregate (pickaxe,pickaxeLiftJson,pickaxeSdom)
 
   object Dependencies {
+    val sdom = "org.scalawag.sdom" % "sdom" % "0.1.0"
     val timberApi = "org.scalawag.timber" % "timber-api" % "0.4.0"
     val reflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
     val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC1"

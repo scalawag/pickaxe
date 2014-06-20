@@ -123,7 +123,7 @@ class Pickaxe[IN:TypeTag](private val recursive:Boolean = true,private val lax:B
   protected def extractRecursive[OUT:TypeTag](extract: => Extractor[OUT]):Extractor[OUT] = PartialFunction.empty
 
   /** Override for common (output-type-apathetic) conversions that can be performed for any output type
-    *  Really, handles any input that can be treated the same regardless of its output type (as long as
+    * Really, handles any input that can be treated the same regardless of its output type (as long as
     * the extractor can deal with it).  Use this for iterations and such that aren't really recursive
     * (based on the semantics of your particular pickaxe).  You can think of these as recursions that are
     * allowed even when recursions are disallowed.
