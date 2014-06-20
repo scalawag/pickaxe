@@ -77,7 +77,7 @@ object PickaxeBuild extends Build {
       settings = commonSettings ++ Seq(
         libraryDependencies ++= Seq(sdom),
         exportPackage ++= Seq(
-          "org.scalawag.pickaxe.json"
+          "org.scalawag.pickaxe.sdom"
         )
       )
      ) dependsOn (pickaxe)
