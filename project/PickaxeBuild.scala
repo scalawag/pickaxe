@@ -25,7 +25,8 @@ object PickaxeBuild extends Build {
       parallelExecution in jacoco.Config := false,
       libraryDependencies ++= Seq(scalatest,mockito,timber),
       organization := "org.scalawag.pickaxe",
-      resolvers += "sonatype-oss-releases" at "https://oss.sonatype.org/content/repositories/releases/",
+      resolvers ++= Seq("sonatype-oss-releases" at "https://oss.sonatype.org/content/repositories/releases/",
+                        "sonatype-oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"),
       publishMavenStyle := true,
       publishArtifact in Test := false,
       publishTo <<= version { (v: String) =>
@@ -99,7 +100,7 @@ object PickaxeBuild extends Build {
                            )) aggregate (pickaxe,pickaxeLiftJson,pickaxeSdom)
 
   object Dependencies {
-    val sdom = "org.scalawag.sdom" % "sdom" % "0.1.0"
+    val sdom = "org.scalawag.sdom" %% "sdom" % "0.2.1-SNAPSHOT"
     val timberApi = "org.scalawag.timber" % "timber-api" % "0.4.0"
     val reflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
     val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC1"
