@@ -12,12 +12,12 @@ object PickaxeBuild extends Build {
   val VERSION = GitFlow.WorkingDir.version.toString
 
   val commonSettings =
-    Defaults.defaultSettings ++ osgiSettings ++ Seq(
+    osgiSettings ++ Seq(
       version := VERSION,
       crossPaths := false,
       scalacOptions ++= Seq("-unchecked","-deprecation","-feature","-language:implicitConversions","-target:jvm-1.6"),
       javaOptions ++= Seq("-Xmx256m","-XX:MaxPermSize=256m"),
-      scalaVersion := "2.10.0",
+      scalaVersion := "2.10.2",
 //      testOptions += Tests.Argument("-oDF"),
       // Right now, the reflection stuff is not thread-safe so we have to execute our tests in sequence.
       // See: http://docs.scala-lang.org/overviews/reflection/thread-safety.html
@@ -28,9 +28,9 @@ object PickaxeBuild extends Build {
       resolvers += "sonatype-oss-releases" at "https://oss.sonatype.org/content/repositories/releases/",
       publishMavenStyle := true,
       publishArtifact in Test := false,
-      publishTo <<= version { (v: String) =>
+      publishTo := {
         val nexus = "https://oss.sonatype.org/"
-        if (v.trim.endsWith("SNAPSHOT"))
+        if (version.value.trim.endsWith("SNAPSHOT"))
           Some("snapshots" at nexus + "content/repositories/snapshots")
         else
           Some("releases"  at nexus + "service/local/staging/deploy/maven2")
@@ -86,6 +86,7 @@ object PickaxeBuild extends Build {
     Project("pickaxe-lift-json",file("pickaxe-lift-json"),
       settings = commonSettings ++ Seq(
         libraryDependencies ++= Seq(liftJson),
+        privatePackage := Seq.empty,
         exportPackage ++= Seq(
           "org.scalawag.pickaxe.json"
         )
@@ -93,7 +94,7 @@ object PickaxeBuild extends Build {
      ) dependsOn (pickaxe)
 
   val aggregator = Project("aggregate",file("."),
-                           settings = Defaults.defaultSettings ++ Seq(
+                           settings = Seq(
                              publishTo := Some("unused" at "unused"),
                              packagedArtifacts := Map.empty
                            )) aggregate (pickaxe,pickaxeLiftJson,pickaxeSdom)
