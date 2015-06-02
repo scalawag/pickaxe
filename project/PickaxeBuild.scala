@@ -18,6 +18,7 @@ object PickaxeBuild extends Build {
       scalacOptions ++= Seq("-unchecked","-deprecation","-feature","-language:implicitConversions","-target:jvm-1.6"),
       javaOptions ++= Seq("-Xmx256m","-XX:MaxPermSize=256m"),
       scalaVersion := "2.10.2",
+      exportJars := true, // depend on other project's jars to get OSGi version metadata
 //      testOptions += Tests.Argument("-oDF"),
       // Right now, the reflection stuff is not thread-safe so we have to execute our tests in sequence.
       // See: http://docs.scala-lang.org/overviews/reflection/thread-safety.html
