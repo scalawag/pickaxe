@@ -1,5 +1,7 @@
 // pickaxe -- Copyright 2013 Justin Patterson -- All Rights Reserved
 
+scalacOptions := Seq("-feature","-deprecation")
+
 addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
